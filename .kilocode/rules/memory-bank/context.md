@@ -1,10 +1,10 @@
-# Active Context: Next.js Starter Template
+# Active Context: EggWatch Pro — Smart Incubator Dashboard
 
 ## Current State
 
-**Template Status**: ✅ Ready for development
+**Project Status**: ✅ Smart Egg Incubator Dashboard — Fully Implemented
 
-The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. It's ready for AI-assisted expansion to build any type of application.
+A full-featured real-time monitoring dashboard for ESP32-based smart egg incubators, built with Next.js 16, TypeScript, Tailwind CSS 4, Recharts, Lucide React, and date-fns.
 
 ## Recently Completed
 
@@ -14,23 +14,42 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] ESLint configuration
 - [x] Memory bank documentation
 - [x] Recipe system for common features
+- [x] Smart Egg Incubator Dashboard implementation
+  - [x] Types/interfaces for incubator data (`src/types/incubator.ts`)
+  - [x] Mock data generator and utilities (`src/lib/mockData.ts`)
+  - [x] Incubator data store with polling (`src/lib/incubatorStore.ts`)
+  - [x] Reusable UI components: Card, Badge
+  - [x] Real-time monitoring: TemperatureCard, HumidityCard, MotorStatusCard
+  - [x] Egg Turning Control Panel with schedule calculator
+  - [x] Data Logs Table with auto-refresh
+  - [x] Charts with temperature/humidity lines + egg turn markers (Recharts)
+  - [x] Alerts Panel with configurable thresholds
+  - [x] Full History Panel with search, filters, pagination, CSV export
+  - [x] Connection Status header with demo/live toggle
+  - [x] Dark mode UI, card-based responsive layout
 
 ## Current Structure
 
 | File/Directory | Purpose | Status |
 |----------------|---------|--------|
-| `src/app/page.tsx` | Home page | ✅ Ready |
-| `src/app/layout.tsx` | Root layout | ✅ Ready |
-| `src/app/globals.css` | Global styles | ✅ Ready |
+| `src/app/page.tsx` | Dashboard entry point | ✅ Ready |
+| `src/app/layout.tsx` | Root layout (dark mode) | ✅ Ready |
+| `src/app/globals.css` | Global styles + scrollbar | ✅ Ready |
+| `src/types/incubator.ts` | TypeScript types | ✅ Ready |
+| `src/lib/mockData.ts` | Mock data + CSV export | ✅ Ready |
+| `src/lib/incubatorStore.ts` | State management hook | ✅ Ready |
+| `src/components/ui/` | Card, Badge components | ✅ Ready |
+| `src/components/dashboard/` | All dashboard components | ✅ Ready |
 | `.kilocode/` | AI context & recipes | ✅ Ready |
 
-## Current Focus
+## ESP32 Integration
 
-The template is ready. Next steps depend on user requirements:
+Set `NEXT_PUBLIC_ESP32_API_URL` env var to your ESP32 IP address. Toggle "Demo Mode" off in the header to use live data.
 
-1. What type of application to build
-2. What features are needed
-3. Design/branding preferences
+Expected ESP32 API endpoints:
+- `GET /api/status` — current readings
+- `GET /api/logs?limit=20` — recent logs
+- `POST /api/schedule` — update turning schedule
 
 ## Quick Start Guide
 
