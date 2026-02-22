@@ -53,7 +53,7 @@ export function useIncubatorData() {
 
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_BASE_URL}/api/status`);
+      const response = await fetch(`${API_BASE_URL}/status`);
       if (response.ok) {
         const data = await response.json();
         setStatus({
@@ -90,7 +90,7 @@ export function useIncubatorData() {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/logs?limit=20`);
+      const response = await fetch(`${API_BASE_URL}/logs?limit=20`);
       if (response.ok) {
         const data = await response.json();
         setReadings(
@@ -208,7 +208,7 @@ export function useIncubatorData() {
       setTurningSchedule(schedule);
       if (!useMockData) {
         try {
-          await fetch(`${API_BASE_URL}/api/schedule`, {
+          await fetch(`${API_BASE_URL}/schedule`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
