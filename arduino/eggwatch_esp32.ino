@@ -25,8 +25,8 @@
 // ============================================================
 // CONFIGURATION — edit these
 // ============================================================
-const char* WIFI_SSID     = "YOUR_WIFI_SSID";
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+const char* WIFI_SSID     = "SKYW_4710_2G";
+const char* WIFI_PASSWORD = "7VeRUe4v";
 
 // AHT30 I2C address
 #define AHT30_ADDR 0x38
