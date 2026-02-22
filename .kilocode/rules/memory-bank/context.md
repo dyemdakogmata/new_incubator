@@ -116,3 +116,4 @@ export async function GET() {
 |------|---------|
 | Initial | Template created with base setup |
 | 2026-02-22 | Added `arduino/eggwatch_esp32.ino` — complete ESP32 firmware for AHT30 + DS3231, serves `/api/status`, `/api/logs`, `/api/schedule` with CORS headers matching dashboard expectations. Added `.env.local` template for ESP32 IP configuration. |
+| 2026-02-22 | Added connection troubleshooting: shows ESP32 IP in header when in live mode, better error logging in browser console, improved `.env.local` comments with instructions. Created `src/lib/config.ts` for centralized ESP32 configuration. |
