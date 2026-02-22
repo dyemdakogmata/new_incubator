@@ -1,20 +1,18 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, Download, Filter, ChevronDown, ChevronUp, X } from "lucide-react";
+import { Download, Filter, ChevronDown, ChevronUp, X, Search } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { IncubatorReading } from "@/types/incubator";
 import { exportToCSV } from "@/lib/mockData";
-import { format, isWithinInterval, parseISO, startOfDay, endOfDay } from "date-fns";
+import { format } from "date-fns";
 
 interface HistoryPanelProps {
   readings: IncubatorReading[];
 }
 
 interface Filters {
-  dateFrom: string;
-  dateTo: string;
   tempMin: string;
   tempMax: string;
   humidityMin: string;
@@ -23,8 +21,6 @@ interface Filters {
 }
 
 const DEFAULT_FILTERS: Filters = {
-  dateFrom: "",
-  dateTo: "",
   tempMin: "",
   tempMax: "",
   humidityMin: "",
@@ -34,7 +30,6 @@ const DEFAULT_FILTERS: Filters = {
 
 export function HistoryPanel({ readings }: HistoryPanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [searchDate, setSearchDate] = useState("");
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,30 +37,6 @@ export function HistoryPanel({ readings }: HistoryPanelProps) {
 
   const filteredReadings = useMemo(() => {
     return readings.filter((r) => {
-      // Date search
-      if (searchDate) {
-        const dateStr = format(r.timestamp, "yyyy-MM-dd");
-        if (!dateStr.includes(searchDate)) return false;
-      }
-
-      // Date range filter
-      if (filters.dateFrom) {
-        try {
-          const from = startOfDay(parseISO(filters.dateFrom));
-          if (r.timestamp < from) return false;
-        } catch {
-          // ignore invalid date
-        }
-      }
-      if (filters.dateTo) {
-        try {
-          const to = endOfDay(parseISO(filters.dateTo));
-          if (r.timestamp > to) return false;
-        } catch {
-          // ignore invalid date
-        }
-      }
-
       // Temperature filter
       if (filters.tempMin && r.temperature < parseFloat(filters.tempMin)) return false;
       if (filters.tempMax && r.temperature > parseFloat(filters.tempMax)) return false;
@@ -79,7 +50,7 @@ export function HistoryPanel({ readings }: HistoryPanelProps) {
 
       return true;
     });
-  }, [readings, searchDate, filters]);
+  }, [readings, filters]);
 
   const totalPages = Math.ceil(filteredReadings.length / itemsPerPage);
   const paginatedReadings = filteredReadings.slice(
@@ -88,8 +59,6 @@ export function HistoryPanel({ readings }: HistoryPanelProps) {
   );
 
   const hasActiveFilters =
-    filters.dateFrom ||
-    filters.dateTo ||
     filters.tempMin ||
     filters.tempMax ||
     filters.humidityMin ||
@@ -98,7 +67,6 @@ export function HistoryPanel({ readings }: HistoryPanelProps) {
 
   const clearFilters = () => {
     setFilters(DEFAULT_FILTERS);
-    setSearchDate("");
     setCurrentPage(1);
   };
 
@@ -125,18 +93,8 @@ export function HistoryPanel({ readings }: HistoryPanelProps) {
         </div>
       }
     >
-      {/* Search & Filter Bar */}
+      {/* Filter Bar */}
       <div className="flex flex-col sm:flex-row gap-2 mb-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-          <input
-            type="date"
-            value={searchDate}
-            onChange={(e) => { setSearchDate(e.target.value); setCurrentPage(1); }}
-            className="w-full bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-2 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors"
-            placeholder="Search by date"
-          />
-        </div>
         <button
           onClick={() => setShowFilters(!showFilters)}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
@@ -168,24 +126,6 @@ export function HistoryPanel({ readings }: HistoryPanelProps) {
       {showFilters && (
         <div className="mb-4 p-4 bg-gray-700/50 rounded-lg border border-gray-600">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <div>
-              <label className="text-xs text-gray-500 block mb-1">Date From</label>
-              <input
-                type="date"
-                value={filters.dateFrom}
-                onChange={(e) => { setFilters({ ...filters, dateFrom: e.target.value }); setCurrentPage(1); }}
-                className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 block mb-1">Date To</label>
-              <input
-                type="date"
-                value={filters.dateTo}
-                onChange={(e) => { setFilters({ ...filters, dateTo: e.target.value }); setCurrentPage(1); }}
-                className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500"
-              />
-            </div>
             <div>
               <label className="text-xs text-gray-500 block mb-1">Temp Min (°C)</label>
               <input
