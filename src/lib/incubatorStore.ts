@@ -18,8 +18,8 @@ import {
   DEFAULT_TURNING_SCHEDULE,
 } from "./mockData";
 
-// ESP32 API endpoint - replace with actual endpoint
-const API_BASE_URL = process.env.NEXT_PUBLIC_ESP32_API_URL || "http://192.168.1.100";
+// Proxy routes — browser calls these Next.js endpoints, which forward to the ESP32
+const API_BASE_URL = "/api/esp32";
 
 export function useIncubatorData() {
   const [status, setStatus] = useState<IncubatorStatus>(generateCurrentStatus());

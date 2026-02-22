@@ -125,7 +125,7 @@ export function Dashboard() {
           <p className="mt-1">
             Designed for ESP32 integration •{" "}
             <span className="text-gray-500">
-              API: {process.env.NEXT_PUBLIC_ESP32_API_URL || "http://192.168.1.100"}
+              ESP32: {process.env.NEXT_PUBLIC_ESP32_API_URL || "http://192.168.1.100"}
             </span>
           </p>
         </footer>
