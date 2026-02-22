@@ -27,6 +27,12 @@ A full-featured real-time monitoring dashboard for ESP32-based smart egg incubat
   - [x] Full History Panel with search, filters, pagination, CSV export
   - [x] Connection Status header with demo/live toggle
   - [x] Dark mode UI, card-based responsive layout
+- [x] Next.js API proxy routes for ESP32 (`src/app/api/esp32/`)
+  - [x] `GET /api/esp32/status` → forwards to ESP32 `/api/status`
+  - [x] `GET /api/esp32/logs?limit=N` → forwards to ESP32 `/api/logs`
+  - [x] `POST /api/esp32/schedule` → forwards to ESP32 `/api/schedule`
+  - [x] `incubatorStore.ts` updated to call proxy routes (no more direct browser→ESP32 calls)
+  - [x] Fixes CORS errors and network reachability issues
 
 ## Current Structure
 
@@ -37,14 +43,19 @@ A full-featured real-time monitoring dashboard for ESP32-based smart egg incubat
 | `src/app/globals.css` | Global styles + scrollbar | ✅ Ready |
 | `src/types/incubator.ts` | TypeScript types | ✅ Ready |
 | `src/lib/mockData.ts` | Mock data + CSV export | ✅ Ready |
-| `src/lib/incubatorStore.ts` | State management hook | ✅ Ready |
+| `src/lib/incubatorStore.ts` | State management hook (uses proxy) | ✅ Ready |
 | `src/components/ui/` | Card, Badge components | ✅ Ready |
 | `src/components/dashboard/` | All dashboard components | ✅ Ready |
+| `src/app/api/esp32/status/` | Proxy: GET /api/esp32/status | ✅ Ready |
+| `src/app/api/esp32/logs/` | Proxy: GET /api/esp32/logs | ✅ Ready |
+| `src/app/api/esp32/schedule/` | Proxy: POST /api/esp32/schedule | ✅ Ready |
 | `.kilocode/` | AI context & recipes | ✅ Ready |
 
 ## ESP32 Integration
 
 Set `NEXT_PUBLIC_ESP32_API_URL` env var to your ESP32 IP address. Toggle "Demo Mode" off in the header to use live data.
+
+The browser calls Next.js proxy routes (`/api/esp32/*`), which forward to the ESP32. This avoids CORS issues and works even when the dashboard is hosted remotely (as long as the Next.js server can reach the ESP32 IP).
 
 Expected ESP32 API endpoints:
 - `GET /api/status` — current readings
