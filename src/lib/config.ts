@@ -3,7 +3,7 @@
 
 // The ESP32 IP address - update this to match your device's IP
 // You can find this in the Arduino IDE serial monitor when the ESP32 boots
-export const ESP32_API_URL = process.env.NEXT_PUBLIC_ESP32_API_URL || "http://192.168.1.50";
+export const ESP32_API_URL = process.env.NEXT_PUBLIC_ESP32_API_URL || "http://192.168.1.46";
 
 // Extract just the IP for display purposes
 export const ESP32_IP = ESP32_API_URL.replace(/^https?:\/\//, "");
