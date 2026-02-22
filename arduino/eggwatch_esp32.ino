@@ -37,6 +37,9 @@ const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
 
 // Log storage — keeps last N readings in RAM
 #define MAX_LOG_ENTRIES 50
+
+// Motor control pin (optional — add your hardware)
+// #define MOTOR_PIN 23
 // ============================================================
 
 RTC_DS3231 rtc;
@@ -56,12 +59,12 @@ bool  motorRunning    = false;
 
 // ---- Log ring buffer ----
 struct LogEntry {
-  char  id[20];
-  char  timestamp[25];  // ISO 8601
-  float temperature;
-  float humidity;
-  bool  eggTurning;
-  bool  motorRunning;
+  char   id[20];
+  char   timestamp[25];  // ISO 8601
+  float  temperature;
+  float  humidity;
+  bool   eggTurningEvent;
+  char   motorStatus[10];  // "running" or "idle"
 };
 
 LogEntry logBuffer[MAX_LOG_ENTRIES];
@@ -137,8 +140,9 @@ void appendLog(bool eggTurn) {
   buildTimestamp(e.timestamp, sizeof(e.timestamp));
   e.temperature = currentTemp;
   e.humidity    = currentHumidity;
-  e.eggTurning  = eggTurn;
-  e.motorRunning = motorRunning;
+  e.eggTurningEvent = eggTurn;
+  snprintf(e.motorStatus, sizeof(e.motorStatus), 
+           motorRunning ? "running" : "idle");
 
   logHead = (logHead + 1) % MAX_LOG_ENTRIES;
   if (logCount < MAX_LOG_ENTRIES) logCount++;
@@ -151,12 +155,17 @@ void appendLog(bool eggTurn) {
 void handleStatus() {
   addCORSHeaders();
 
-  StaticJsonDocument<256> doc;
-  doc["temperature"]  = round(currentTemp * 10.0f) / 10.0f;
-  doc["humidity"]     = round(currentHumidity * 10.0f) / 10.0f;
-  doc["motor_status"] = motorRunning ? "running" : "idle";
-  doc["turns_today"]  = turnsToday;
-  doc["next_turn_in"] = nextTurnIn;
+  StaticJsonDocument<512> doc;
+  doc["temperature"] = round(currentTemp * 10.0f) / 10.0f;
+  doc["humidity"]    = round(currentHumidity * 10.0f) / 10.0f;
+  doc["motorStatus"] = motorRunning ? "running" : "idle";
+  doc["turnsCompletedToday"] = turnsToday;
+  doc["nextTurnIn"] = nextTurnIn;
+  
+  // Add timestamp
+  char ts[25];
+  buildTimestamp(ts, sizeof(ts));
+  doc["lastUpdated"] = ts;
 
   String output;
   serializeJson(doc, output);
@@ -186,13 +195,13 @@ void handleLogs() {
     int idx = ((logHead - 1 - i) + MAX_LOG_ENTRIES) % MAX_LOG_ENTRIES;
     const LogEntry& e = logBuffer[idx];
 
-    StaticJsonDocument<200> entry;
-    entry["id"]           = e.id;
-    entry["timestamp"]    = e.timestamp;
-    entry["temperature"]  = e.temperature;
-    entry["humidity"]     = e.humidity;
-    entry["egg_turning"]  = e.eggTurning;
-    entry["motor_status"] = e.motorRunning ? "running" : "idle";
+    StaticJsonDocument<256> entry;
+    entry["id"] = e.id;
+    entry["timestamp"] = e.timestamp;
+    entry["temperature"] = round(e.temperature * 10.0f) / 10.0f;
+    entry["humidity"] = round(e.humidity * 10.0f) / 10.0f;
+    entry["eggTurningEvent"] = e.eggTurningEvent;
+    entry["motorStatus"] = e.motorStatus;
 
     String entryStr;
     serializeJson(entry, entryStr);
@@ -215,15 +224,22 @@ void handleSchedule() {
     StaticJsonDocument<128> doc;
     DeserializationError err = deserializeJson(doc, server.arg("plain"));
     if (!err) {
-      turnsPerDay   = doc["turns_per_day"]   | turnsPerDay;
-      intervalHours = doc["interval_hours"]  | intervalHours;
+      turnsPerDay   = doc["turnsPerDay"] | doc["turns_per_day"] | turnsPerDay;
+      intervalHours = doc["intervalHours"] | doc["interval_hours"] | intervalHours;
       nextTurnIn    = intervalHours * 3600;
       Serial.printf("[Schedule] Updated: %d turns/day, every %d hours\n",
                     turnsPerDay, intervalHours);
     }
   }
 
-  server.send(200, "application/json", "{\"ok\":true}");
+  // Return the updated schedule
+  StaticJsonDocument<128> response;
+  response["turnsPerDay"] = turnsPerDay;
+  response["intervalHours"] = intervalHours;
+  
+  String output;
+  serializeJson(response, output);
+  server.send(200, "application/json", output);
 }
 
 // ============================================================
@@ -260,7 +276,7 @@ void setup() {
   Serial.println("[AHT30] Initialized");
 
   // ---- WiFi ----
-  Serial.printf("[WiFi] Connecting to %s", WIFI_SSID);
+  Serial.printf("[WiFi] Connecting to %s\n", WIFI_SSID);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
