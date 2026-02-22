@@ -2,6 +2,7 @@
 
 import { Wifi, WifiOff, Egg, Activity } from "lucide-react";
 import { format } from "date-fns";
+import { ESP32_IP } from "@/lib/config";
 
 interface ConnectionStatusProps {
   isConnected: boolean;
@@ -69,6 +70,11 @@ export function ConnectionStatus({ isConnected, lastUpdated, useMockData, onTogg
               )}
               <span className="hidden sm:block">{isConnected ? "Connected" : "Disconnected"}</span>
             </div>
+            {!useMockData && (
+              <div className="text-xs text-gray-500" title="ESP32 IP Address">
+                {ESP32_IP}
+              </div>
+            )}
           </div>
         </div>
       </div>

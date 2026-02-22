@@ -65,8 +65,16 @@ export function useIncubatorData() {
           lastUpdated: new Date(),
           isConnected: true,
         });
+      } else {
+        // Connection failed - show error details
+        const errorData = await response.json().catch(() => ({}));
+        console.error("ESP32 connection error:", response.status, errorData);
+        setStatus((prev) => ({ ...prev, isConnected: false }));
       }
-    } catch {
+    } catch (err) {
+      // Network error - ESP32 unreachable
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error("Cannot reach ESP32:", message);
       setStatus((prev) => ({ ...prev, isConnected: false }));
     } finally {
       setIsLoading(false);
